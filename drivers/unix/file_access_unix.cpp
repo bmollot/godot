@@ -37,8 +37,11 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#if defined(UNIX_ENABLED)
+#if defined(UNIX_ENABLED) || defined(UNIX_SEMI_ENABLED)
 #include <unistd.h>
+#ifdef UNIX_SEMI_ENABLED
+#define _access access
+#endif
 #endif
 
 #ifndef ANDROID_ENABLED
@@ -71,7 +74,7 @@ Error FileAccessUnix::_open(const String &p_path, int p_mode_flags) {
 
 	path_src = p_path;
 	path = fix_path(p_path);
-	//printf("opening %ls, %i\n", path.c_str(), Memory::get_static_mem_usage());
+	printf("opening %ls, %i\n", path.c_str(), Memory::get_mem_usage());
 
 	ERR_FAIL_COND_V(f, ERR_ALREADY_IN_USE);
 	const char *mode_string;
@@ -90,7 +93,7 @@ Error FileAccessUnix::_open(const String &p_path, int p_mode_flags) {
 	/* pretty much every implementation that uses fopen as primary
 	   backend (unix-compatible mostly) supports utf8 encoding */
 
-	//printf("opening %s as %s\n", p_path.utf8().get_data(), path.utf8().get_data());
+	printf("opening %s as %s\n", p_path.utf8().get_data(), path.utf8().get_data());
 	struct stat st;
 	int err = stat(path.utf8().get_data(), &st);
 	if (!err) {
@@ -106,7 +109,7 @@ Error FileAccessUnix::_open(const String &p_path, int p_mode_flags) {
 	if (is_backup_save_enabled() && (p_mode_flags & WRITE) && !(p_mode_flags & READ)) {
 		save_path = path;
 		path = path + ".tmp";
-		//print_line("saving instead to "+path);
+		print_line("saving instead to "+path);
 	}
 
 	f = fopen(path.utf8().get_data(), mode_string);

@@ -379,6 +379,7 @@ Error ProjectSettings::setup(const String &p_path, const String &p_main_pack, bo
 
 		err = _load_settings_text_or_binary(current_dir.plus_file("project.godot"), current_dir.plus_file("project.binary"));
 		if (err == OK) {
+			printf("Found project.godot\n");
 			// Optional, we don't mind if it fails
 			_load_settings_text(current_dir.plus_file("override.cfg"));
 			candidate = current_dir;

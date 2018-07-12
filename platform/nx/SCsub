@@ -1,0 +1,48 @@
+#!/usr/bin/env python
+
+import os
+import json
+Import('env')
+
+devkitpro_path = os.environ["DEVKITPRO"]
+cwd = os.getcwd()
+
+common_nx = [
+    "os_nx.cpp",
+    "../../drivers/nx/dlfcn.c",
+    "../../drivers/nx/ifaddrs.c",
+    "../../drivers/nx/nx.cpp",
+    "../../drivers/nx/semaphore.cpp",
+    "../../drivers/nx/syslog.c",
+]
+
+# Make our .elf file
+prog = env.add_program('#bin/godot', ['godot_nx.cpp'] + common_nx)
+
+# Read symbols for debug
+nm_bin = devkitpro_path+'/devkitA64/bin/aarch64-none-elf-gcc-nm'
+lst_out= cwd+'/debug.lst'
+env.Command(lst_out, '#bin/godot${PROGSUFFIX}', "{nm_bin} -CSn $SOURCE > $TARGET".format(**locals()))
+
+# Then romfs
+build_romfs_bin = devkitpro_path+'/tools/bin/build_romfs'
+romfs_dir = cwd+'/romfs'
+romfs_out = cwd+'/romfs.img'
+env.Command(romfs_out, romfs_dir, "{build_romfs_bin} $SOURCE $TARGET".format(**locals()))
+
+# Then .nacp
+nacptool_bin = devkitpro_path+'/tools/bin/nacptool'
+nacp_out = cwd+'/control.nacp'
+nacp_src = cwd+'/nacp.json'
+nacp = json.load(open(nacp_src, "r"))
+nacp_name = nacp['name']
+nacp_author = nacp['author']
+nacp_version = nacp['version']
+env.Command(nacp_out, nacp_src, "{nacptool_bin} --create \"{nacp_name}\" \"{nacp_author}\" \"{nacp_version}\" $TARGET".format(**locals()))
+
+# And finally .nro
+elf2nro_bin = devkitpro_path+'/tools/bin/elf2nro'
+icon_path = cwd+'/default_icon.jpg'
+nro_out = '#bin/out.nro'
+env.Command(nro_out, ['#bin/godot${PROGSUFFIX}', icon_path, nacp_out, romfs_out],\
+    "{elf2nro_bin} $SOURCE $TARGET --icon={icon_path} --nacp={nacp_out} --romfs={romfs_out}".format(**locals()))

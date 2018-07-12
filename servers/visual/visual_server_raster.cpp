@@ -131,7 +131,7 @@ bool VisualServerRaster::has_changed() const {
 	return changes > 0;
 }
 void VisualServerRaster::init() {
-
+	printf("VSR::init called\n");
 	VSG::rasterizer->initialize();
 }
 void VisualServerRaster::finish() {

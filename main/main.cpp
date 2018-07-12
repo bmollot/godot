@@ -972,7 +972,7 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 	ProjectSettings::get_singleton()->register_global_defaults();
 
 	if (p_second_phase)
-		return setup2();
+		return setup2(0);
 
 	return OK;
 
@@ -1033,6 +1033,8 @@ Error Main::setup2(Thread::ID p_main_tid_override) {
 		Thread::_main_thread_id = p_main_tid_override;
 	}
 
+	printf("in setup2\n");
+
 	Error err = OS::get_singleton()->initialize(video_mode, video_driver_idx, audio_driver_idx);
 	if (err != OK) {
 		return err;
@@ -1041,15 +1043,20 @@ Error Main::setup2(Thread::ID p_main_tid_override) {
 		OS::get_singleton()->set_window_position(init_custom_pos);
 	}
 
+	printf("OS initialized\n");
+
 	// right moment to create and initialize the audio server
 
 	audio_server = memnew(AudioServer);
 	audio_server->init();
 
+	printf("audio initialized\n");
+
 	// also init our arvr_server from here
 	arvr_server = memnew(ARVRServer);
 
 	register_core_singletons();
+	printf("core singletons registered\n");
 
 	MAIN_PRINT("Main: Setup Logo");
 

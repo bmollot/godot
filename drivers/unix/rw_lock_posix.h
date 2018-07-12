@@ -34,6 +34,12 @@
 #if defined(UNIX_ENABLED) || defined(PTHREAD_ENABLED)
 
 #include "os/rw_lock.h"
+
+#if defined(__LIBNX__)
+#include <sys/types.h>
+#include <sys/_pthreadtypes.h>
+#endif
+
 #include <pthread.h>
 
 class RWLockPosix : public RWLock {

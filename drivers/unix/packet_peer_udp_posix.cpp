@@ -51,7 +51,7 @@
 #include <sys/ioctl.h>
 #endif
 
-#ifdef JAVASCRIPT_ENABLED
+#if defined(JAVASCRIPT_ENABLED) || defined(LIBNX_ENABLED)
 #include <arpa/inet.h>
 #endif
 

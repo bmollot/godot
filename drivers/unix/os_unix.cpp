@@ -68,6 +68,11 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+#if defined(__LIBNX__)
+// libnx doesn't support SA_RESTART
+#define SA_RESTART 0
+#endif
+
 void OS_Unix::debug_break() {
 
 	assert(false);
